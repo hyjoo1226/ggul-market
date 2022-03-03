@@ -361,7 +361,8 @@ function commentPage() {
             let btnCommentMsg = isMyprofile ? "modal-my-comment" : "modal-other-comment";
             const goURL = `6.profile.html?${commentAuthorAccountname}`;
 
-            container.innerHTML = `
+			let list = document.createElement("article");
+            list.innerHTML = `
               <ul class="wrap-profile comment">
                 <li>
                   <a href=${goURL}><img src=${commentAuthorImage} alt="기본프로필 소형" class="basic-profile"></a>
@@ -378,6 +379,7 @@ function commentPage() {
               </ul>
               <p>${commentContent}</p>
               `
+			container.appendChild(list);
 		}
 		const wrapComment = document.querySelector('.wrap-comment');
         const btnSend = document.querySelector('.btn-send');
