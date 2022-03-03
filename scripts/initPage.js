@@ -384,7 +384,7 @@ function commentPage() {
               </ul>
               <p>${commentContent}</p>
               `
-			container.appendChild(list);
+			container.insertBefore(list, container.firstChild);
 			wrapComment.innerHTML = `
 			  <input type="file" name="" id="upload-profile" class="txt-hide">
 			  <a href=${goURL}><img src=${commentAuthorImage} alt="기본프로필 소형" class="basic-profile"></a>
