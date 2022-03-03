@@ -293,10 +293,20 @@ export async function getBtn() {
 	const Alert_btnTwo = document.querySelector(".alert-btn-two");
 	btnMoreModal.forEach((btn) => {
 		btn.addEventListener("click", () => {
-			let postId = btn.classList.item(0);
-			let productId = btn.classList.item(0);
-			localStorage.setItem("productId", productId);
-			localStorage.setItem("postId", postId);
+			let postId;
+			let commentId;
+			let productId;
+			if (btn.classList.contains("modal-my-comment") || (btn.classList.contains("modal-other-comment"))) {
+				commentId = btn.classList.item(0);
+				localStorage.setItem("commentId", commentId);
+				postId = localStorage.getItem("postId");
+			}
+			else {
+				postId = btn.classList.item(0);
+				productId = btn.classList.item(0);
+				localStorage.setItem("productId", productId);
+				localStorage.setItem("postId", postId);
+			}
 			Modal.classList.toggle("open");
 			if (Modal.classList.contains("open")) {
 				close_modal(Modal);
@@ -343,10 +353,16 @@ export async function getBtn() {
 						editProduct(productId);
 					});
 				} else if (btn.classList.contains("modal-my-comment")) {
-					Modal.style.bottom = "-90px";
+					Modal.style.bottom = "-140px";
+					btnOne.textContent = "삭제";
 					btnOne.addEventListener("click", () => {
 						alert_message("delete_comment");
 						close_alert();
+						Alert_btnTwo.addEventListener("click", async () => {
+							deleteComment(postId, commentId);
+							ModalAlert.style.display = "none";
+							window.location.reload()
+						});
 					});
 				} else if (btn.classList.contains("modal-other-comment")) {
 					Modal.style.bottom = "-140px";
@@ -354,6 +370,11 @@ export async function getBtn() {
 					btnOne.addEventListener("click", () => {
 						alert_message("report_comment");
 						close_alert();
+						Alert_btnTwo.addEventListener("click", async () => {
+							reportComment(postId, commentId);
+							ModalAlert.style.display = "none";
+							Modal.classList.remove("open");
+						});
 					});
 				}
 			} else {

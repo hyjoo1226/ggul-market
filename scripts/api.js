@@ -685,7 +685,7 @@ export async function editComment(postId, input) {
 	console.log(data);
   }
 // 댓글 삭제
-export async function deleteComment(postId) {
+export async function deleteComment(postId, commentId) {
 	const url = API_URL + `/post/${postId}/comments/${commentId}`;
 	const res = await fetch(url, {
 		method: "DELETE",
@@ -696,7 +696,7 @@ export async function deleteComment(postId) {
 	});
 }
 // 댓글 신고
-export async function reportComment(postId) {
+export async function reportComment(postId, commentId) {
 	const url = API_URL + `/post/${postId}/comments/${commentId}/report`;
 	const res = await fetch(url, {
 		method: "POST",
