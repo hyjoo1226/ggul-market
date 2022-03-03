@@ -364,17 +364,6 @@ export async function getBtn() {
 	});
 }
 
-// 댓글
-// export async function RenderComment(list, postId) {
-//   console.log(list)
-//   const container = document.querySelector(".feed-container");
-//   container.appendChild(list);
-//   GetComment(postId).then((value) => {
-//     console.log(value);
-
-//   });
-// }
-
 export async function BtnComment() {
 	const btn_comment = document.getElementsByClassName("btn-comment");
 	const home_post = document.getElementsByClassName("home-post");

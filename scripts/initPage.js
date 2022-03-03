@@ -337,12 +337,9 @@ function profileModifyPage() {
 
 function commentPage() {
 	const container = document.querySelector(".feed-container");
-	// let item = localStorage.getItem('selectPage');
+	const wrapComment = document.querySelector('.wrap-comment');
 	let postId = localStorage.getItem('postId');
-	console.log(postId)
-	// console.log(item)
 	GetComment(postId).then((value) => {
-		console.log(value)
 		for (let comment of value) {
 			let commentAuthorImage = comment.author.image;
             let commentAuthorUsername = comment.author.username;
@@ -380,10 +377,18 @@ function commentPage() {
               <p>${commentContent}</p>
               `
 			container.appendChild(list);
+			wrapComment.innerHTML = `
+			  <input type="file" name="" id="upload-profile" class="txt-hide">
+			  <a href=${goURL}><img src=${commentAuthorImage} alt="기본프로필 소형" class="basic-profile"></a>
+			  <form class="form-comment">
+				<input class="input-comment" type="text" placeholder="댓글 입력하기..." cols="40" rows="5">
+				<button class="btn-send">게시</button>
+			  </form>
+			`
 		}
-		const wrapComment = document.querySelector('.wrap-comment');
         const btnSend = document.querySelector('.btn-send');
         const inputComment = document.querySelector('.input-comment');
+
         wrapComment.addEventListener('input', () => {
           btnSend.classList.add('active');
           if (inputComment.value == "") {
@@ -398,6 +403,4 @@ function commentPage() {
 			editComment(postId, inputComment.value);
 		  })
 	})
-	// container.innerHTML = `${item}`
-	// container.appendChild(item);
 }
