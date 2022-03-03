@@ -1,5 +1,6 @@
 import { ORIGIN, TOKEN, ACCOUNT_NAME } from "./constants.js";
-import { checkEmailValid, checkUserIdValid, join, getFeed, login, getAccount, getProfile, getFollowing, getFollower, loadUserData, updateProfile, profileImage, GetComment, editComment } from "./api.js";
+import { checkEmailValid, checkUserIdValid, join, getFeed, login, getAccount, getProfile, getFollowing, getFollower, loadUserData, updateProfile, profileImage, GetComment, editComment,  } from "./api.js";
+import { BtnLike, getBtn } from "./script.js";
 
 let loc = [];
 // 현재 페이지 읽기
@@ -352,7 +353,7 @@ function commentPage() {
 	let selectPost = localStorage.getItem('selectPost');
 	console.log(postId)
 	FeedContainer.innerHTML = selectPost
-
+	BtnLike();
 	GetComment(postId).then((value) => {
 		for (let comment of value) {
 			let commentAuthorImage = comment.author.image;
@@ -400,6 +401,7 @@ function commentPage() {
 			  </form>
 			`
 		}
+		getBtn();
         const btnSend = document.querySelector('.btn-send');
         const inputComment = document.querySelector('.input-comment');
 
@@ -417,4 +419,5 @@ function commentPage() {
 			editComment(postId, inputComment.value);
 		  })
 	})
+	
 }
