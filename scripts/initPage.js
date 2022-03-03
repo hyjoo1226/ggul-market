@@ -344,9 +344,15 @@ function profileModifyPage() {
 }
 
 function commentPage() {
-	const container = document.querySelector(".feed-container");
+	const FeedContainer = document.querySelector(".feed-container");
+	const CommentContainer = document.querySelector(".comment-container");
 	const wrapComment = document.querySelector('.wrap-comment');
+	// const btnBack = document.querySelector('.btn-back');
 	let postId = localStorage.getItem('postId');
+	let selectPost = localStorage.getItem('selectPost');
+	console.log(postId)
+	FeedContainer.innerHTML = selectPost
+
 	GetComment(postId).then((value) => {
 		for (let comment of value) {
 			let commentAuthorImage = comment.author.image;
@@ -364,7 +370,7 @@ function commentPage() {
               isMyprofile = false;
             }
             let btnCommentMsg = isMyprofile ? "modal-my-comment" : "modal-other-comment";
-            const goURL = `6.profile.html?${commentAuthorAccountname}`;
+            const goURL = `profile.html?${commentAuthorAccountname}`;
 
 			let list = document.createElement("article");
             list.innerHTML = `
@@ -384,7 +390,7 @@ function commentPage() {
               </ul>
               <p>${commentContent}</p>
               `
-			container.insertBefore(list, container.firstChild);
+			  CommentContainer.insertBefore(list, CommentContainer.firstChild);
 			wrapComment.innerHTML = `
 			  <input type="file" name="" id="upload-profile" class="txt-hide">
 			  <a href=${goURL}><img src=${commentAuthorImage} alt="기본프로필 소형" class="basic-profile"></a>

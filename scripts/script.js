@@ -31,7 +31,6 @@ export function loadPost(idx, post, imageArr, imageLength, isMyprofile, authorNa
 	const goURL = `${ORIGIN}/pages/profile.html?${authorName}`;
 
 	let btnMsg = isMyprofile ? "modal-my-edit" : "modal-other-edit";
-	let btnCommentMsg = isMyprofile ? "modal-my-comment" : "modal-other-comment";
 
 	let images = "";
 	let list = document.createElement("article");
@@ -371,9 +370,9 @@ export async function BtnComment() {
 		btn_comment[i].addEventListener("click", () => {
 			let postId = btn_comment[i].classList[0];
 			localStorage.setItem('postId', postId);
-			let list = home_post[i];
+			let list = home_post[i].outerHTML
 			console.log(list)
-			console.log(typeof(list))
+			localStorage.setItem('selectPost', list);
 			location.href = `${ORIGIN}/pages/commentPage.html?${postId}`;
 		});
 	}
