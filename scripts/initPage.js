@@ -390,11 +390,11 @@ function commentPage() {
           else {
             btnSend.classList.add('active');
 			console.log(inputComment.value)
-            btnSend.addEventListener('click', () => {
-              editComment(postId, inputComment.value);
-            })
           }
         })
+		btnSend.addEventListener('click', () => {
+			editComment(postId, inputComment.value);
+		  })
 	})
 	// container.innerHTML = `${item}`
 	// container.appendChild(item);
