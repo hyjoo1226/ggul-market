@@ -276,6 +276,14 @@ function profilePage() {
 			localStorage.setItem("postId", "");
 		}
 	});
+		//상품등록 버튼 누르면 로컬스토리지의 productId 초기화
+		const addProductBtn = document.querySelector("#btn-add-product");
+
+		addProductBtn.addEventListener("click", () => {
+			if (localStorage.getItem("productId")) {
+				localStorage.setItem("productId", "");
+			}
+		});
 }
 
 function followPage() {

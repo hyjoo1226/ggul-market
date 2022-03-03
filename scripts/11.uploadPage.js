@@ -1,10 +1,6 @@
-import { API_URL, ACCOUNT_NAME, TOKEN, POST_ID } from "./constants.js";
+import { API_URL, ACCOUNT_NAME, TOKEN, POST_ID, ORIGIN } from "./constants.js";
 
-let oldImgStorage = []; // 기존 이미지 src 저장소
 let currentImgStorage = []; // 현재 총 이미지 스토리지
-let newImgNames = ""; // 변환된 이미지이름(들) 저장소
-let oldImgNames = ""; // 받아온 변환된 이미지이름 문자열.
-
 let submitState = false;
 let uploadBtn;
 
@@ -13,10 +9,11 @@ window.addEventListener("DOMContentLoaded", () => {
 	const textarea = document.querySelector(".textarea-input");
 	textarea.addEventListener("input", textareaResize, false);
 	uploadBtn = document.querySelector("#save-btn");
-	checkNewOrEdit(POST_ID);
-	showSelectedImg();
+	isEditPost(POST_ID);
+	addPreviewImg();
 	deleteImg();
 	clickUploadBtn();
+	setProfileImg();
 });
 
 function textareaResize() {
@@ -25,16 +22,34 @@ function textareaResize() {
 	checkBtnActive();
 }
 
-// 수정인지 새글인지 판단
-function checkNewOrEdit(postId) {
-	if (postId) {
-		console.log(`postid 있음 : ${postId}`);
-		setPostData(postId);
-	}
+// 수정글이면 
+function isEditPost(postId) {
+  if(postId) {
+    setPostData(postId);
+  }
+}
+
+//프로필 사진 가져오기
+async function apiProfileImg() {
+	const response = await fetch(`${API_URL}/profile/${ACCOUNT_NAME}`, {
+		method: "GET",
+		headers: {
+			Authorization: `Bearer ${TOKEN}`,
+			"Content-type": "application/json",
+		}
+	});
+	const data = await response.json();
+	return data.profile['image']
+}
+
+async function setProfileImg() {
+	const profileImg = document.querySelector("#feed-profile");
+	const  image = await apiProfileImg();
+	
+	profileImg.src = image;
 }
 
 // 기존 게시물 내용 로딩
-
 async function apiPostData(postId) {
 	const response = await fetch(`${API_URL}/post/${postId}`, {
 		headers: {
@@ -46,66 +61,75 @@ async function apiPostData(postId) {
 	return await response.json();
 }
 
-async function setPostData() {
-	const textareaElement = document.querySelector(".textarea-input");
-	const postImgList = document.querySelector(".upload-img-list");
+async function setPostData(postId) {	
+	apiPostData(postId).then((postData) => {
+		const oldImgNames = postData.post.image;
 
-	apiPostData(POST_ID).then((postData) => {
-		textareaElement.value = postData.post.content;
-		oldImgNames = postData.post.image;
-
+		if (postData.post.content) {
+			const textareaElement = document.querySelector(".textarea-input");
+			textareaElement.value = postData.post.content;
+		}
 		// 기존 이미지 가져와서 달아주기.
 		if (oldImgNames) {
-			oldImgStorage = oldImgNames.split(",", 3); // 이미지 최대 3장 까지 : 현재 이미지 10장까지 올리는 사람이 있음
-			for (i in oldImgStorage) {
+			const oldImgStorage = oldImgNames.split(',', 3); // 이미지 최대 3장 까지 : 현재 이미지 10장까지 올리는 사람이 있음
+			const postImgList = document.querySelector(".upload-img-list");
+			for (let imgName of oldImgStorage) {
+				currentImgStorage.push(imgName);
 				let imgItem = `
               <li class="imgItem">
                 <button type="button" class="btn-close">
                   <img src="../images/x.png" alt="" class="x">
                 </button>
-                <img src="${oldImgStorage[i]}" alt="" />
+                <img src="${imgName}" alt="" />
               </li>`;
 				postImgList.insertAdjacentHTML("beforeend", imgItem);
 			}
-		}
-		activeUploadBtn();
-	});
-}
-
-// 새로 선택한 이미지 미리보기 처리
-function showSelectedImg() {
-	const imgInput = document.querySelector("#feedImgInput");
-	const postImgList = document.querySelector(".upload-img-list");
-	const postImgListItem = document.querySelectorAll(".upload-img-list li");
-
-	imgInput.addEventListener("change", (e) => {
-		currentImgStorage.push(imgInput.files[0]);
-		if (currentImgStorage.length >= 4) {
-			alert("이미지는 최대 3개까지 업로드할 수 있습니다.");
-			currentImgStorage.pop();
-		} else {
-			const reader = new FileReader();
-			reader.onload = (e) => {
-				if (postImgListItem.length < 4) {
-					let imgItem = `
-          <li class="imgItem">
-            <button type="button" class="btn-close">
-              <img src="../images/x.png" alt="" class="x">
-            </button>
-            <img src="${e.target.result}" alt="" / >
-          </li>`;
-					postImgList.insertAdjacentHTML("beforeend", imgItem);
-					checkBtnActive();
-				}
-			};
-			reader.readAsDataURL(e.target.files[0]);
 		}
 		checkBtnActive();
 	});
 }
 
-// 이미지 삭제 버튼 동작
+// 새로 선택한 이미지 미리보기 처리
+function addPreviewImg() {
+	const imgInput = document.querySelector("#feedImgInput");
+	const postImgList = document.querySelector(".upload-img-list");
 
+	imgInput.addEventListener("change", (e) => {
+		if (isFullImgList(postImgList)) {
+			handleFile(e.target.files[0]);
+		} else {
+			alert("이미지는 최대 3개까지 업로드할 수 있습니다.");
+		}
+	});
+}
+
+function isFullImgList(itemList) {
+	if (itemList.childElementCount >= 3) {
+		return false
+	} else {
+		return true
+	}
+}
+
+function handleFile(file) {
+	const postImgList = document.querySelector(".upload-img-list");
+	const reader = new FileReader();
+	reader.onload = (e) => {
+		let imgItem = `
+			<li class="imgItem" file="${file}">
+				<button type="button" class="btn-close">
+					<img src="../images/x.png" alt="" class="x">
+				</button>
+				<img src="${e.target.result}" alt="" / >
+			</li>`;
+		postImgList.insertAdjacentHTML("beforeend", imgItem);
+		checkBtnActive();
+	}
+	reader.readAsDataURL(file);
+	handleFilename(file);
+}
+
+// 이미지 삭제 버튼 동작
 function deleteImg() {
 	const imgList = document.querySelector(".upload-img-list");
 
@@ -116,77 +140,82 @@ function deleteImg() {
 			if (e.target === imgList.children[idx].firstElementChild.firstElementChild) {
 				currentImgStorage.splice(idx, 1);
 				postImgListItem[idx].remove();
+				checkBtnActive();
 				return;
 			}
 		}
 	});
 }
 
-// 서버에서 파일이름 변환해오기
-async function getImgName(formData) {
-	let filenames = [];
-	try {
-		const response = await fetch(`${API_URL}/image/uploadfiles`, {
-			method: "POST",
-			body: formData,
-		});
-
-		const data = await response.json();
-
-		for (let i of data) {
-			filenames.push(`${API_URL}/${i["filename"]}`);
-		}
-		if (filenames.length > 1) {
-			return filenames.join(",");
+async function handleFilename(file) {
+	apiGetFilename(file).then((changedFilename) => {
+		if (!changedFilename){
+			addRetryImgBtn();
 		} else {
-			return filenames[0];
-		}
-	} catch (err) {
+			currentImgStorage.push(`${API_URL}/${changedFilename}`);
+		} 
+	})
+	.catch((err) => {
 		console.log(err);
-	}
+	})
 }
 
-// 이미지 변환위한 처리 & 받아오기
-async function setImgFilenames() {
-	let uploadImgNames = "";
-	let result = "";
-	// 업로드 전 이미지 변환하기
-	if (currentImgStorage.length > 0) {
-		const imgFormData = new FormData();
-
-		currentImgStorage.forEach((item, idx) => {
-			if (typeof item == "string") {
-				uploadImgNames = item;
-				if (item.length + 1 != idx) uploadImgNames += ",";
-			} else {
-				imgFormData.append("image", item);
-			}
+// 서버에서 파일이름 변환해오기
+async function apiGetFilename(file) {
+	const formData = new FormData();
+	formData.append('image',file)
+	try{
+		const response = await fetch(`${API_URL}/image/uploadfile`, {
+			method: "POST",
+			body : formData
 		});
+		const data = await response.json();
+	
+		const changedFilename = data["filename"];
+		console.log(changedFilename)
+		return changedFilename;
 
-		result = getImgName(imgFormData).then((result) => {
-			uploadImgNames += result;
-			return uploadImgNames;
-		});
+	}catch(err){
+		console.log(err)
 	}
-	return result;
 }
 
 // 게시물 수정 api
-async function apiEditPost(headers, body) {
+async function apiEditPost() {
+	const textareaElement = document.querySelector(".textarea-input");
+	const filenames = currentImgStorage.join(',');
 	const response = await fetch(`${API_URL}/post/${POST_ID}`, {
 		method: "PUT",
-		headers,
-		body,
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: "Bearer " + TOKEN,
+		},
+		body: JSON.stringify({
+			post: {
+				content: textareaElement.value,
+				image: filenames
+			},
+		})	
 	});
 	const data = await response.json();
 	return data;
 }
 // 새 게시물 업로드 api
-async function apiUploadPost(headers, body) {
+async function apiUploadPost() {
+	const textareaElement = document.querySelector(".textarea-input");
+	const filenames = currentImgStorage.join(',');
 	const response = await fetch(`${API_URL}/post`, {
 		method: "POST",
-		headers,
-		body,
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: "Bearer " + TOKEN,
+		},
+		body: JSON.stringify({
+			post: {
+				content: textareaElement.value,
+				image: filenames
+			}
+		})	
 	});
 	const data = await response.json();
 	return data;
@@ -196,65 +225,32 @@ async function apiUploadPost(headers, body) {
 function clickUploadBtn() {
 	const saveBtn = document.querySelector("#save-btn");
 	saveBtn.addEventListener("click", () => {
-		if (!saveBtn.classList.contains("disabled")) {
-			postUpload();
+		if (!saveBtn.classList.contains("disabled") && submitState) {
+			handlePost();
 		}
 	});
 }
 
 // 업로드 버튼 기능
-async function postUpload() {
-	const textareaElement = document.querySelector(".textarea-input");
-
-	uploadBtn.addEventListener("click", async (event) => {
-		if (submitState) {
-			let headers;
-			let body;
-
-			setImgFilenames()
-				.then((result) => {
-					//헤더, 바디 설정
-					headers = {
-						"Content-Type": "application/json",
-						Authorization: "Bearer " + TOKEN,
-					};
-
-					body = JSON.stringify({
-						post: {
-							content: textareaElement.value,
-							image: result,
-						},
-					});
-					console.log(result);
-				})
-				.then(() => {
-					// 기존 게시물 수정이면
-					if (POST_ID) {
-						apiEditPost(headers, body)
-							.then((data) => {
-								if (data) {
-									resetAndMove();
-								}
-							})
-							.catch((err) => console.log(err));
-					} else {
-						// 새 게시물 업로드이면
-						apiUploadPost(headers, body)
-							.then((data) => {
-								if (data) {
-									resetAndMove();
-								}
-							})
-							.catch((err) => console.log(err));
-					}
-				});
-		}
-	});
-}
-
-function resetAndMove() {
-	dataReset();
-	// href("/profile.html");
+async function handlePost() {
+	// 기존 게시물 수정이면
+	if (POST_ID) {
+		apiEditPost()
+			.then((data) => {
+				if (data) {
+					resetAndMove();
+				}})
+			.catch((err) => console.log(err));
+	} else {
+		// 새 게시물 업로드이면
+		apiUploadPost()
+			.then((data) => {
+				if (data) {
+					dataReset();
+					loacation.href = `${ORIGIN}/pages${pageName}`;
+				}})
+			.catch((err) => console.log(err));
+	}
 }
 
 function dataReset() {
@@ -282,19 +278,12 @@ function removeAllChildNodes(parent) {
 	}
 }
 
-function href(pageName) {
-	const routeTag = document.createElement("a");
-	routeTag.id = "routeTag";
-	routeTag.href = `/pages${pageName}`;
-	document.querySelector(".container").appendChild(routeTag);
-	document.querySelector("#routeTag").click();
-}
 //업로드 유효 검사
 function checkBtnActive() {
 	const textareaElement = document.querySelector(".textarea-input");
 	const imgList = document.querySelectorAll(".upload-img-list li");
 	const uploadBtn = document.querySelector("#save-btn");
-	console.log();
+
 	if (textareaElement.value.length != 0 || imgList.length >= 1) {
 		uploadBtn.classList.remove("disabled");
 		submitState = true;
