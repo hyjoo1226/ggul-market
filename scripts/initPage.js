@@ -416,14 +416,14 @@ function commentPage() {
               <p>${commentContent}</p>
               `
 			CommentContainer.insertBefore(list, CommentContainer.firstChild);
-			// wrapComment.innerHTML = `
-			//   <input type="file" name="" id="upload-profile" class="txt-hide">
-			//   <a href=${goURL}><img src=${commentAuthorImage} alt="기본프로필 소형" class="basic-profile"></a>
-			//   <form class="form-comment">
-			// 	<input class="input-comment" type="text" placeholder="댓글 입력하기..." cols="40" rows="5">
-			// 	<button class="btn-send">게시</button>
-			//   </form>
-			// `
+			wrapComment.innerHTML = `
+			  <input type="file" name="" id="upload-profile" class="txt-hide">
+			  <a href=${goURL}><img src=${commentAuthorImage} alt="기본프로필 소형" class="basic-profile"></a>
+			  <form class="form-comment">
+				<input class="input-comment" type="text" placeholder="댓글 입력하기..." cols="40" rows="5">
+				<button class="btn-send">게시</button>
+			  </form>
+			`
 		}
 		getBtn();
         const btnSend = document.querySelector('.btn-send');
@@ -436,7 +436,6 @@ function commentPage() {
           }
           else {
             btnSend.classList.add('active');
-			console.log(inputComment.value)
           }
         })
 		btnSend.addEventListener('click', () => {

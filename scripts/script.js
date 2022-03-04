@@ -344,7 +344,7 @@ export async function getBtn() {
 						Alert_btnTwo.addEventListener("click", async () => {
 							deleteProduct(productId);
 							ModalAlert.style.display = "none";
-							document.location.reload(true);
+							window.location.href = `${ORIGIN}/pages/profile.html`;
 						});
 					});
 					btnTwo.addEventListener("click", () => {
@@ -391,7 +391,6 @@ export async function BtnComment() {
 			let postId = btn_comment[i].classList[0];
 			localStorage.setItem('postId', postId);
 			let list = home_post[i].outerHTML
-			console.log(list)
 			localStorage.setItem('selectPost', list);
 			location.href = `${ORIGIN}/pages/commentPage.html?${postId}`;
 		});
