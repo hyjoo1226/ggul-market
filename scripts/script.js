@@ -6,7 +6,6 @@ export function getMiniProfile(target, key) {
 	let name = target.username.replace(key, `<span style="color:orange; font-weight:500;">${key}</span>`);
 	let accountname = target.accountname.replace(key, `<span style="color:orange; font-weight:500;">${key}</span>`);
 	const goURL = `${ORIGIN}/pages/profile.html?${target.accountname}`; // 프로필 바로가기 링크
-
 	let profile = document.createElement("article");
 	profile.classList = "box-profile";
 	profile.innerHTML = `<ul class="wrap-profile">

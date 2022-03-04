@@ -344,6 +344,30 @@ function profileModifyPage() {
 	});
 }
 
+function convertTime(time) {
+	const ms = Date.parse(time);
+	const now = Date.now();
+	const dif = (now - ms) / 1000;
+	if (dif < 1) {
+		return '방금';
+	}
+	else if (dif < 60) {
+		return `${parseInt(dif)}초`;
+	}
+	else if (dif < 3600) {
+		return `${parseInt(dif / 60)}분`;
+	}
+	else if (dif < 86400) {
+		return `${parseInt(dif / 3600)}시간`;
+	}
+	else if (dif < 2592000) {
+		return `${parseInt(dif / 86400)}일`;
+	}
+	else {
+		return `${parseInt(dif / 2592000)}달`;
+	}
+}
+
 function commentPage() {
 	const FeedContainer = document.querySelector(".feed-container");
 	const CommentContainer = document.querySelector(".comment-container");
@@ -359,7 +383,7 @@ function commentPage() {
 			let commentAuthorImage = comment.author.image;
             let commentAuthorUsername = comment.author.username;
             let commentAuthorAccountname = comment.author.accountname;
-            let commentCreatedAt = comment.createdAt;
+            let commentCreatedAt = convertTime(comment.createdAt);
             let commentContent = comment.content;
             let commentId = comment.id;
 			let isMyprofile;
@@ -371,7 +395,7 @@ function commentPage() {
               isMyprofile = false;
             }
             let btnCommentMsg = isMyprofile ? "modal-my-comment" : "modal-other-comment";
-            const goURL = `profile.html?${commentAuthorAccountname}`;
+            let goURL = `profile.html?${commentAuthorAccountname}`;
 
 			let list = document.createElement("article");
             list.innerHTML = `
@@ -391,15 +415,15 @@ function commentPage() {
               </ul>
               <p>${commentContent}</p>
               `
-			  CommentContainer.insertBefore(list, CommentContainer.firstChild);
-			wrapComment.innerHTML = `
-			  <input type="file" name="" id="upload-profile" class="txt-hide">
-			  <a href=${goURL}><img src=${commentAuthorImage} alt="기본프로필 소형" class="basic-profile"></a>
-			  <form class="form-comment">
-				<input class="input-comment" type="text" placeholder="댓글 입력하기..." cols="40" rows="5">
-				<button class="btn-send">게시</button>
-			  </form>
-			`
+			CommentContainer.insertBefore(list, CommentContainer.firstChild);
+			// wrapComment.innerHTML = `
+			//   <input type="file" name="" id="upload-profile" class="txt-hide">
+			//   <a href=${goURL}><img src=${commentAuthorImage} alt="기본프로필 소형" class="basic-profile"></a>
+			//   <form class="form-comment">
+			// 	<input class="input-comment" type="text" placeholder="댓글 입력하기..." cols="40" rows="5">
+			// 	<button class="btn-send">게시</button>
+			//   </form>
+			// `
 		}
 		getBtn();
         const btnSend = document.querySelector('.btn-send');
